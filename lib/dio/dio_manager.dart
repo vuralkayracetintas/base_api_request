@@ -1,16 +1,19 @@
 import 'dart:developer';
+import 'package:base_apis/dio/api_error_model.dart';
 import 'package:base_apis/dio/api_response_model.dart';
+import 'package:base_apis/dio/interceptor/auth_interceptor.dart';
+import 'package:base_apis/dio/interceptor/error_logging_interceptor.dart';
+import 'package:base_apis/dio/interceptor/refresh_token_interceptor.dart';
+import 'package:base_apis/dio/interceptor/retry_interceptor.dart';
+import 'package:base_apis/dio/token_manager.dart';
 import 'package:dio/dio.dart';
-import 'package:ai_voice_chat/core/dio_manager/api_error_model.dart';
-import 'package:ai_voice_chat/core/dio_manager/api_response_model.dart';
-import 'package:ai_voice_chat/core/dio_manager/interceptors/auth_interceptor.dart';
-import 'package:ai_voice_chat/core/dio_manager/interceptors/error_logging_interceptor.dart';
-import 'package:ai_voice_chat/core/dio_manager/interceptors/retry_interceptor.dart';
 
 class DioApiManager {
+  static DioApiManager? _instance;
   final Dio _dio;
+  final Function()? onTokenExpired;
 
-  DioApiManager({required String baseUrl, String? token})
+  DioApiManager._internal({required String baseUrl, this.onTokenExpired})
     : _dio = Dio(BaseOptions(baseUrl: baseUrl)) {
     _dio.interceptors.addAll([
       LogInterceptor(
@@ -20,10 +23,31 @@ class DioApiManager {
         responseHeader: true,
         requestHeader: true,
       ),
-      if (token != null) AuthInterceptor(token: token), // Token management
-      RetryInterceptor(dio: _dio), // Auth retry management
-      ErrorLoggingInterceptor(), // Error logging
+      AuthInterceptor(tokenManager: TokenManager()),
+      RefreshTokenInterceptor(
+        dio: _dio,
+        baseUrl: baseUrl,
+        onTokenExpired: onTokenExpired,
+      ),
+      RetryInterceptor(dio: _dio),
+      ErrorLoggingInterceptor(),
     ]);
+  }
+
+  factory DioApiManager({
+    required String baseUrl,
+    String? token,
+    Function()? onTokenExpired,
+  }) {
+    _instance ??= DioApiManager._internal(
+      baseUrl: baseUrl,
+      onTokenExpired: onTokenExpired,
+    );
+    return _instance!;
+  }
+
+  static void resetInstance() {
+    _instance = null;
   }
 
   /// GET request for any model type
