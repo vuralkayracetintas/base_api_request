@@ -6,6 +6,9 @@ class TokenManager {
   factory TokenManager() => _instance;
   TokenManager._internal();
 
+  /// Static getter for accessing the singleton instance
+  static TokenManager get instance => _instance;
+
   String? _accessToken;
   String? _refreshToken;
 

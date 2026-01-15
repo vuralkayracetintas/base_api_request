@@ -14,6 +14,7 @@ final class AuthCubit extends Cubit<AuthState> {
       super(const AuthState());
 
   final AuthRepository _authRepository;
+  final TokenManager _tokenManager = TokenManager.instance;
 
   Future<void> login({
     required String username,
@@ -26,7 +27,7 @@ final class AuthCubit extends Cubit<AuthState> {
     );
     if (result.success) {
       // Save tokens to TokenManager for automatic refresh
-      TokenManager().setTokens(
+      _tokenManager.setTokens(
         accessToken: result.data!.accesToken,
         refreshToken: result.data!.refreshToken,
       );
@@ -40,7 +41,7 @@ final class AuthCubit extends Cubit<AuthState> {
 
   Future<void> getMe() async {
     // Check if we have an access token from TokenManager
-    if (TokenManager().accessToken == null) {
+    if (_tokenManager.accessToken == null) {
       emit(
         state.copyWith(
           isLoading: false,
@@ -72,7 +73,7 @@ final class AuthCubit extends Cubit<AuthState> {
   }
 
   void logout() {
-    TokenManager().clearTokens();
+    _tokenManager.clearTokens();
     emit(const AuthState());
   }
 }

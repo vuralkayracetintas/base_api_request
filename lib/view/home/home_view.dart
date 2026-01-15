@@ -114,13 +114,13 @@ final class HomeView extends StatelessWidget {
                         const SizedBox(height: 16),
                         _buildTokenRow(
                           'Access Token',
-                          TokenManager().accessToken ?? 'N/A',
+                          TokenManager.instance.accessToken ?? 'N/A',
                           context,
                         ),
                         const Divider(height: 24),
                         _buildTokenRow(
                           'Refresh Token',
-                          TokenManager().refreshToken ?? 'N/A',
+                          TokenManager.instance.refreshToken ?? 'N/A',
                           context,
                         ),
                       ],

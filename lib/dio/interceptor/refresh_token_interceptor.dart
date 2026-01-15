@@ -21,7 +21,7 @@ class RefreshTokenInterceptor extends Interceptor {
         !err.requestOptions.path.contains('auth/refresh')) {
       log('Token expired, attempting to refresh...');
 
-      final tokenManager = TokenManager();
+      final tokenManager = TokenManager.instance;
       final refreshToken = tokenManager.refreshToken;
 
       if (refreshToken == null) {

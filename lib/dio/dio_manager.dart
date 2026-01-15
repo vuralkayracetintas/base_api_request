@@ -23,7 +23,7 @@ class DioApiManager {
         responseHeader: true,
         requestHeader: true,
       ),
-      AuthInterceptor(tokenManager: TokenManager()),
+      AuthInterceptor(tokenManager: TokenManager.instance),
       RefreshTokenInterceptor(
         dio: _dio,
         baseUrl: baseUrl,
